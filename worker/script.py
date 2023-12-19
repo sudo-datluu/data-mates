@@ -26,40 +26,7 @@ event2 = {
 
     close -> open
     '''
-'''
-def handle_event(event1, event2):
-    
-    if event1["type"]=='open':
-        if event2["type"]=='switch' or 'close':
-        
-            time_diff=event2["timestamp"]-event1["timestamp"]
-            dict_result={}
-            dict_result["category"]=event1["category"]
-            dict_result["userid"]=event1["userid"]
-            dict_result["total"]=int(time_diff/60)
-            dict_result["app"]=event1["app"]
-            return dict_result
-    elif event1["type"]=='switch':
-        if event2["type"]=='switch' or 'close':
-            time_diff=event2["timestamp"]-event1["timestamp"]
-            dict_result={}
-            dict_result["category"]=event1["category"]
-            dict_result["userid"]=event1["userid"]
-            dict_result["total"]=int(time_diff/60)
-            dict_result["app"]=event1["app"]
-            return dict_result
-    elif event1["type"]=='close':
-        if event2["type"]=='open':
-            time_diff=event2["timestamp"]-event1["timestamp"]
-            dict_result={}
-            dict_result["category"]=event1["category"]
-            dict_result["userid"]=event1["userid"]
-            dict_result["total"]=int(time_diff/60)
-            dict_result["app"]=event1["app"]
-            return dict_result
-    else:
-        return None
-'''
+
 def handle_event(event1, event2):
     event_types = {'open', 'switch', 'close'}
 
