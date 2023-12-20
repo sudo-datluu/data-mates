@@ -1,5 +1,5 @@
 from supabase import Client
-from datetime import datetime
+import datetime
 import dateutil.parser
 
 class Worker:
@@ -43,12 +43,31 @@ class Worker:
             "app": event1["app"]
         }
     
-    def transform(self, data: list):
-        # iterate over the data
+    # Transform result from 2 events
+    def transform_event(self, data: dict):
+        if not data: return None
+        user_id=str(data['user_id'])
+        unix_timestamp=data['unix_timestamp']
 
-        # 
-        return
+        date_time = datetime.datetime.utcfromtimestamp(unix_timestamp)
 
+        day_of_week_index = date_time.weekday()
+        days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        day_name = days_of_week[day_of_week_index]
+
+        day_id=date_time.strftime('%Y%m%d')
+        hour=date_time.strftime('%H')
+
+        return {
+            'user_id':int(user_id),
+            'day_id':day_id,
+            'hour':hour,
+            'day':day_name,
+            'id_string':user_id+'_'+day_id+'_'+hour,
+            'category':data['category'],
+            'total':data['total']
+        }
+    
     def load(self):
         return
 
