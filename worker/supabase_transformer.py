@@ -181,6 +181,7 @@ class SupabaseTransformer:
                 "user_id": data['user_id'],
                 "week_head": week_head,
                 "week_tail": week_tail,
+                "total": data['total'],
                 "avg": data['total'] / 7,
                 data['day']: data['total']
             }
@@ -189,9 +190,10 @@ class SupabaseTransformer:
                 .execute()
         else:
             # If a result exists, update the total for the given day
-            new_total = query.data[0][data['day']] + data['total']
+            new_total = query.data[0]['total'] + data['total']
+            new_total_day = query.data[0][data['day']] + data['total']
             supabase.table("report_weekly")\
-                .update({data['day']: new_total, "avg": new_total / 7})\
+                .update({'total': new_total, "avg": new_total / 7, data['day']: new_total_day})\
                 .eq('week_head', week_head)\
                 .eq('week_tail', week_tail)\
                 .execute()
