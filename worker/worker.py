@@ -9,4 +9,4 @@ if __name__ == "__main__":
   key: str = os.getenv("SUPABASE_KEY")
   supabase = create_client(url, key)
   processor = Processor(supabase)
-  Processor.run()
+  processor.run()
