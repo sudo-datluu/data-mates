@@ -1,13 +1,11 @@
-import os
-import random
-from collections import defaultdict
 import datetime
+import os
 from typing import List
 
-import supabase
 import requests
-from dotenv import load_dotenv
+import supabase
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 
 class Output:
@@ -15,7 +13,16 @@ class Output:
     category: str
     type: str
     app: str
-    created_at: datetime.datetime
+    created_at: str
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "category": self.category,
+            "type": self.type,
+            "app": self.app,
+            "created_at": self.created_at
+        }
 
     def __str__(self):
         return f"Output(user_id={self.user_id}, category={self.category}, type={self.type}, app={self.app}, " \
@@ -70,6 +77,8 @@ def fetch_raw_logs() -> List[LogEntry]:
     raw_logs = []
 
     for raw_log in response.data:
+        if raw_log["processed_at"]:
+            continue
         log = LogEntry()
         log.id = raw_log["id"]
         log.created_at = raw_log["created_at"]
@@ -87,6 +96,7 @@ def fetch_raw_logs() -> List[LogEntry]:
 def generate_events(log: LogEntry, category: str) -> List[Output]:
     end_time_format = "%Y-%m-%dT%H:%M:%S"
     end_time = datetime.datetime.strptime(log.end_time, end_time_format)
+    end_timestamptz = end_time.astimezone().isoformat()
 
     open_event = Output()
     open_event.user_id = 123
@@ -94,14 +104,15 @@ def generate_events(log: LogEntry, category: str) -> List[Output]:
     open_event.type = "open"
     open_event.app = log.app_name
     # subtract app_usage seconds from end_time
-    open_event.created_at = end_time - datetime.timedelta(seconds=log.usage)
+
+    open_event.created_at = (end_time - datetime.timedelta(seconds=log.usage)).astimezone().isoformat()
 
     close_event = Output()
     close_event.user_id = 123
     close_event.category = category
     close_event.type = "close"
     close_event.app = log.app_name
-    close_event.created_at = end_time
+    close_event.created_at = end_timestamptz
 
     return [open_event, close_event]
 
@@ -114,7 +125,8 @@ def mark_log_as_processed(log: LogEntry):
 
 def save_events(events: List[Output]):
     client = supabase.Client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-    client.table("logs").insert(events).execute()
+    event_dict_list = [event.to_dict() for event in events]
+    client.table("logs").insert(event_dict_list).execute()
 
 
 def main():
