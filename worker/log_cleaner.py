@@ -4,15 +4,15 @@ class LogCleaner:
     # Handle 2 continuous logs
     def handle(self, log_obj_1, log_obj_2) -> dict:
         # Validate data
-        validate = [
-            ('open', 'switch'),
-            ('open', 'close'),
-            ('switch', 'switch'),
-            ('switch', 'close'),
-            ('close', 'open'),
-        ]
-        if (log_obj_1.get('type'), log_obj_2.get('type')) not in validate:
-            return None
+        # validate = [
+        #     ('open', 'switch'),
+        #     ('open', 'close'),
+        #     ('switch', 'switch'),
+        #     ('switch', 'close'),
+        #     ('close', 'open'),
+        # ]
+        # if (log_obj_1.get('type'), log_obj_2.get('type')) not in validate:
+        #     return None
         
         # Calculate time difference
         time_diff = log_obj_2['unix_created_at'] - log_obj_1['unix_created_at']
